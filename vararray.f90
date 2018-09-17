@@ -13,9 +13,29 @@ module vararray
      module procedure push_integer
      module procedure push_real_dp_mat
      module procedure push_integer_mat
+     module procedure push_real_dp_batch
+     module procedure push_integer_batch
   end interface push
 
 contains
+  
+  subroutine push_real_dp_batch (arr,data)
+    real(dp),allocatable, intent(inout) :: arr(:)
+    real(dp), intent(in) :: data(:)
+    integer :: info
+
+    if (allocated(arr)) then
+        allocate(temp_real_dp (size(arr)+size(data)), STAT=info)
+        temp_real_dp(1:size(arr)) = arr
+        temp_real_dp(size(arr)+1:size(arr)+size(data)) = data
+        call move_alloc(temp_real_dp,arr)
+     else
+        allocate(arr (size(data)), STAT=info)
+        arr = data
+     endif
+     
+    return
+  end subroutine push_real_dp_batch
   
   subroutine push_real_dp (arr,data)
     real(dp),allocatable, intent(inout) :: arr(:)
@@ -71,6 +91,24 @@ contains
     return
   end subroutine push_integer
 
+  subroutine push_integer_batch (arr,data)
+    integer,allocatable, intent(inout) :: arr(:)
+    integer, intent(in) :: data(:)
+    integer :: info
+
+    if (allocated(arr)) then
+        allocate(temp_integer (size(arr)+size(data)), STAT=info)
+        temp_integer(1:size(arr)) = arr
+        temp_integer(size(arr)+1:size(arr)+size(data)) = data
+        call move_alloc(temp_integer,arr)
+     else
+        allocate(arr (size(data)), STAT=info)
+        arr = data
+     endif
+     
+    return
+  end subroutine push_integer_batch
+  
   subroutine push_integer_mat (arr,data)
     integer,allocatable, intent(inout) :: arr(:,:)
     integer, intent(in) :: data(:)
